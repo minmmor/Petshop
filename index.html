@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetShop Manager</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🐾</div>
+        <div>
+          <strong>PetShop</strong>
+          <span>Manager</span>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <button class="menu-item active" data-page="dashboard"> <span>Dashboard</span></button>
+        <button class="menu-item" data-page="clientes"> <span>Clientes</span></button>
+        <button class="menu-item" data-page="pets"> <span>Pets</span></button>
+        <button class="menu-item" data-page="agendamentos"> <span>Agendamentos</span></button>
+        <button class="menu-item" data-page="servicos"> <span>Serviços</span></button>
+        <button class="menu-item" data-page="funcionarios"> <span>Funcionários</span></button>
+        <button class="menu-item" data-page="produtos"> <span>Produtos</span></button>
+        <button class="menu-item" data-page="fornecedores"> <span>Fornecedores</span></button>
+        <button class="menu-item" data-page="vendas"> <span>Vendas</span></button>
+        <button class="menu-item" data-page="compras"> <span>Compras</span></button>
+        <button class="menu-item" data-page="relatorios"> <span>Relatórios</span></button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <small>Banco PostgreSQL</small>
+        <span class="status-dot" id="dbStatus">Conectando…</span>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Visão geral do pet shop</p>
+        </div>
+        <div class="topbar-actions">
+          <label class="search-global">
+            🔎
+            <input id="globalSearch" type="search" placeholder="Buscar na página..." />
+          </label>
+          <div class="user-badge">ADM</div>
+        </div>
+      </header>
+
+      <!-- ====== DASHBOARD ====== -->
+      <section id="dashboard" class="page active">
+        <div class="cards">
+          <article class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div>
+              <span>Clientes</span>
+              <strong id="dash-clientes">—</strong>
+              <small>cadastrados</small>
+            </div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-icon">🐾</div>
+            <div>
+              <span>Pets</span>
+              <strong id="dash-pets">—</strong>
+              <small>registrados</small>
+            </div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-icon">📅</div>
+            <div>
+              <span>Agendamentos ativos</span>
+              <strong id="dash-agendamentos">—</strong>
+              <small>agendados ou pendentes</small>
+            </div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-icon">💰</div>
+            <div>
+              <span>Vendas</span>
+              <strong id="dash-vendas">—</strong>
+              <small>total cadastrado</small>
+            </div>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Próximos agendamentos</h2>
+                <p>Atendimentos ativos cadastrados</p>
+              </div>
+              <button class="btn secondary" data-go="agendamentos">Ver agenda</button>
+            </div>
+            <div class="agenda-list" id="dash-agenda-list">
+              <p style="padding:1rem;opacity:.5">Carregando…</p>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Resumo operacional</h2>
+                <p>Indicadores do banco</p>
+              </div>
+            </div>
+            <div class="progress-list" id="dash-progress">
+              <p style="padding:1rem;opacity:.5">Carregando…</p>
+            </div>
+          </article>
+
+          <article class="panel full">
+            <div class="panel-header">
+              <div>
+                <h2>Produtos em estoque</h2>
+                <p>Controle rápido dos produtos</p>
+              </div>
+              <button class="btn primary" data-go="produtos">Gerenciar produtos</button>
+            </div>
+            <div class="mini-products" id="dash-mini-products">
+              <p style="padding:1rem;opacity:.5">Carregando…</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ====== CLIENTES ====== -->
+      <section id="clientes" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Clientes</h2>
+            <p>Cadastro e dados de contato dos tutores</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalCliente">+ Novo cliente</button>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Telefone</th>
+                <th>Endereço</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-clientes"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== PETS ====== -->
+      <section id="pets" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Pets</h2>
+            <p>Cadastro dos animais vinculados aos clientes</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalPet">+ Novo pet</button>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Pet</th>
+                <th>Dono</th>
+                <th>Espécie</th>
+                <th>Raça</th>
+                <th>Sexo</th>
+                <th>Nascimento</th>
+                <th>Peso</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-pets"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== AGENDAMENTOS ====== -->
+      <section id="agendamentos" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Agendamentos</h2>
+            <p>Agenda de serviços e atendimentos</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalAgendamento">+ Novo agendamento</button>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Pet</th>
+                <th>Serviço</th>
+                <th>Funcionário</th>
+                <th>Status</th>
+                <th>Observações</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-agendamentos"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== SERVIÇOS ====== -->
+      <section id="servicos" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Serviços</h2>
+            <p>Serviços oferecidos pelo pet shop</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalServico">+ Novo serviço</button>
+        </div>
+        <div class="card-grid" id="servicos-grid"></div>
+      </section>
+
+      <!-- ====== FUNCIONÁRIOS ====== -->
+      <section id="funcionarios" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Funcionários</h2>
+            <p>Equipe e informações funcionais</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalFuncionario">+ Novo funcionário</button>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Cargo</th>
+                <th>Telefone</th>
+                <th>Salário</th>
+                <th>Admissão</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-funcionarios"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== PRODUTOS ====== -->
+      <section id="produtos" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Produtos</h2>
+            <p>Estoque, preços e fornecedores</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalProduto">+ Novo produto</button>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Marca</th>
+                <th>Preço</th>
+                <th>Estoque</th>
+                <th>Fornecedor</th>
+                <th>Cadastro</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-produtos"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== FORNECEDORES ====== -->
+      <section id="fornecedores" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Fornecedores</h2>
+            <p>Empresas fornecedoras de produtos</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalFornecedor">+ Novo fornecedor</button>
+        </div>
+        <div class="card-grid supplier-grid" id="fornecedores-grid"></div>
+      </section>
+
+      <!-- ====== VENDAS ====== -->
+      <section id="vendas" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Vendas</h2>
+            <p>Registro de vendas e itens vendidos</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalVenda">+ Nova venda</button>
+        </div>
+        <div class="cards compact" id="vendas-resumo"></div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th>Forma de pagamento</th>
+                <th>Itens</th>
+                <th>Total</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-vendas"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== COMPRAS ====== -->
+      <section id="compras" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Compras</h2>
+            <p>Entradas de estoque por fornecedor</p>
+          </div>
+          <button class="btn primary open-modal" data-modal="modalCompra">+ Nova compra</button>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Fornecedor</th>
+                <th>Itens</th>
+                <th>Valor total</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-compras"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== RELATÓRIOS ====== -->
+      <section id="relatorios" class="page">
+        <div class="section-tools">
+          <div>
+            <h2>Relatórios</h2>
+            <p>Consultas baseadas nas views criadas no PostgreSQL</p>
+          </div>
+        </div>
+        <div class="report-grid">
+          <article class="report-card" data-report="estoque">
+            <span>📦</span>
+            <h3>Estoque baixo</h3>
+            <p>vw_produtos_estoque_baixo</p><button class="btn secondary">Visualizar</button>
+          </article>
+          <article class="report-card" data-report="veterinarios">
+            <span>🩺</span>
+            <h3>Equipe veterinária</h3>
+            <p>vw_funcionarios_veterinarios</p><button class="btn secondary">Visualizar</button>
+          </article>
+          <article class="report-card" data-report="ativos">
+            <span>📅</span>
+            <h3>Agendamentos ativos</h3>
+            <p>vw_agendamentos_ativos</p><button class="btn secondary">Visualizar</button>
+          </article>
+          <article class="report-card" data-report="petsdonos">
+            <span>🐾</span>
+            <h3>Pets e donos</h3>
+            <p>vw_pets_e_donos</p><button class="btn secondary">Visualizar</button>
+          </article>
+          <article class="report-card" data-report="agenda">
+            <span>🗓️</span>
+            <h3>Agenda detalhada</h3>
+            <p>vw_agenda_diaria_detalhada</p><button class="btn secondary">Visualizar</button>
+          </article>
+          <article class="report-card" data-report="faturamento">
+            <span>💰</span>
+            <h3>Faturamento por funcionário</h3>
+            <p>vw_faturamento_servicos_funcionario</p><button class="btn secondary">Visualizar</button>
+          </article>
+          <article class="report-card" data-report="categorias">
+            <span>📊</span>
+            <h3>Vendas por categoria</h3>
+            <p>vw_resumo_vendas_por_categoria</p><button class="btn secondary">Visualizar</button>
+          </article>
+          <article class="report-card" data-report="caixa">
+            <span>💳</span>
+            <h3>Fechamento de caixa</h3>
+            <p>vw_fechamento_caixa_diario</p><button class="btn secondary">Visualizar</button>
+          </article>
+        </div>
+
+        <article class="panel report-output">
+          <div class="panel-header">
+            <div>
+              <h2 id="reportTitle">Resultado do relatório</h2>
+              <p id="reportDescription">Selecione um relatório acima.</p>
+            </div>
+            <button class="btn secondary" id="exportBtn">Exportar CSV</button>
+          </div>
+          <div class="table-card flat">
+            <table id="reportTable">
+              <thead>
+                <tr>
+                  <th>Informação</th>
+                  <th>Resultado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="2">Nenhum relatório selecionado.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <!-- ====== MODAIS ====== -->
+
+  <div class="modal" id="modalCliente">
+    <div class="modal-box">
+      <button class="modal-close">×</button>
+      <h2 id="modalCliente-title">Novo cliente</h2>
+      <form id="formCliente" class="form-grid">
+        <input type="hidden" name="id_cliente" />
+        <label>Nome<input required type="text" name="nome" placeholder="Nome completo"></label>
+        <label>CPF<input required type="text" name="cpf" placeholder="000.000.000-00"></label>
+        <label>Telefone<input type="text" name="telefone" placeholder="(00) 00000-0000"></label>
+        <label class="full-field">Endereço<input type="text" name="endereco" placeholder="Rua, número e cidade"></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Salvar cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalPet">
+    <div class="modal-box">
+      <button class="modal-close">×</button>
+      <h2 id="modalPet-title">Novo pet</h2>
+      <form id="formPet" class="form-grid">
+        <input type="hidden" name="id_pet" />
+        <label>Dono<select required name="id_cliente" id="select-pet-cliente">
+            <option value="">Selecione</option>
+          </select></label>
+        <label>Nome<input required type="text" name="nome"></label>
+        <label>Espécie<input required type="text" name="especie"></label>
+        <label>Raça<input type="text" name="raca"></label>
+        <label>Sexo<select name="sexo">
+            <option value="M">M</option>
+            <option value="F">F</option>
+          </select></label>
+        <label>Data de nascimento<input type="date" name="data_nascimento"></label>
+        <label>Peso<input type="number" step="0.01" name="peso"></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Salvar pet</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalAgendamento">
+    <div class="modal-box">
+      <button class="modal-close">×</button>
+      <h2 id="modalAgendamento-title">Novo agendamento</h2>
+      <form id="formAgendamento" class="form-grid">
+        <input type="hidden" name="id_agendamentos" />
+        <label>Pet<select required name="id_pet" id="select-agend-pet">
+            <option value="">Selecione</option>
+          </select></label>
+        <label>Serviço<select required name="id_servico" id="select-agend-servico">
+            <option value="">Selecione</option>
+          </select></label>
+        <label>Funcionário<select required name="id_funcionario" id="select-agend-func">
+            <option value="">Selecione</option>
+          </select></label>
+        <label>Data e hora<input type="datetime-local" name="data_hora"></label>
+        <label>Status<select name="status">
+            <option>Agendado</option>
+            <option>Pendente</option>
+            <option>Concluído</option>
+          </select></label>
+        <label class="full-field">Observações<textarea rows="3" name="observacoes"></textarea></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Salvar agendamento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalServico">
+    <div class="modal-box">
+      <button class="modal-close">×</button>
+      <h2 id="modalServico-title">Novo serviço</h2>
+      <form id="formServico" class="form-grid">
+        <input type="hidden" name="id_servicos" />
+        <label>Nome<input required type="text" name="nome"></label>
+        <label>Preço<input required type="number" step="0.01" name="preco"></label>
+        <label>Duração em minutos<input required type="number" name="duracao"></label>
+        <label class="full-field">Descrição<textarea rows="3" name="descricao"></textarea></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Salvar serviço</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalFuncionario">
+    <div class="modal-box">
+      <button class="modal-close">×</button>
+      <h2 id="modalFuncionario-title">Novo funcionário</h2>
+      <form id="formFuncionario" class="form-grid">
+        <input type="hidden" name="id_funcionario" />
+        <label>Nome<input required type="text" name="nome"></label>
+        <label>Cargo<input required type="text" name="cargo"></label>
+        <label>Telefone<input type="text" name="telefone"></label>
+        <label>Salário<input type="number" step="0.01" name="salario"></label>
+        <label>Data de admissão<input type="date" name="data_admissao"></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Salvar funcionário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalProduto">
+    <div class="modal-box">
+      <button class="modal-close">×</button>
+      <h2 id="modalProduto-title">Novo produto</h2>
+      <form id="formProduto" class="form-grid">
+        <input type="hidden" name="id_produto" />
+        <label>Nome<input required type="text" name="nome"></label>
+        <label>Categoria<input type="text" name="categoria"></label>
+        <label>Marca<input type="text" name="marca"></label>
+        <label>Preço<input required type="number" step="0.01" name="preco"></label>
+        <label>Estoque<input required type="number" min="0" name="estoque"></label>
+        <label>Fornecedor<select required name="id_fornecedor" id="select-prod-fornecedor">
+            <option value="">Selecione</option>
+          </select></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Salvar produto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalFornecedor">
+    <div class="modal-box">
+      <button class="modal-close">×</button>
+      <h2 id="modalFornecedor-title">Novo fornecedor</h2>
+      <form id="formFornecedor" class="form-grid">
+        <input type="hidden" name="id_fornecedor" />
+        <label>Nome<input required type="text" name="nome"></label>
+        <label>CNPJ<input required type="text" name="cnpj"></label>
+        <label>Telefone<input type="text" name="telefone"></label>
+        <label>E-mail<input type="email" name="email"></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Salvar fornecedor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalVenda">
+    <div class="modal-box large">
+      <button class="modal-close">×</button>
+      <h2>Nova venda</h2>
+      <form id="formVenda" class="form-grid">
+        <label>Cliente<select required name="id_cliente" id="select-venda-cliente">
+            <option value="">Selecione</option>
+          </select></label>
+        <label>Data<input type="date" name="data_venda"></label>
+        <label>Forma de pagamento<select name="forma_pagamento">
+            <option>PIX</option>
+            <option>Dinheiro</option>
+            <option>Cartão de Crédito</option>
+            <option>Cartão de Débito</option>
+          </select></label>
+        <label>Produto<select name="id_produto" id="select-venda-produto">
+            <option value="">Selecione</option>
+          </select></label>
+        <label>Quantidade<input type="number" min="1" value="1" name="quantidade"></label>
+        <label>Preço unitário<input type="number" step="0.01" name="preco_produto"></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Registrar venda</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalCompra">
+    <div class="modal-box large">
+      <button class="modal-close">×</button>
+      <h2>Nova compra</h2>
+      <form id="formCompra" class="form-grid">
+        <label>Fornecedor<select required name="id_fornecedor" id="select-compra-fornecedor">
+            <option value="">Selecione</option>
+          </select></label>
+        <label>Data<input type="date" name="data_compra"></label>
+        <label>Produto<select name="id_produto" id="select-compra-produto">
+            <option value="">Selecione</option>
+          </select></label>
+        <label>Quantidade<input type="number" min="1" name="quantidade"></label>
+        <label>Custo unitário<input type="number" step="0.01" name="custo_unitario"></label>
+        <div class="form-actions full-field"><button type="button"
+            class="btn secondary modal-cancel">Cancelar</button><button class="btn primary">Registrar compra</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Operação realizada com sucesso!</div>
+  <script src="script.js"></script>
+</body>
+
+</html>
